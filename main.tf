@@ -1,0 +1,59 @@
+provider "google" {
+  version     = "~> 3.29.0"
+  credentials = file("./.keys/terraform.json")
+  project     = var.project
+  region      = var.region
+}
+
+provider "google-beta" {
+  version     = "~> 3.29.0"
+  credentials = file("./.keys/terraform.json")
+  project     = var.project
+  region      = var.region
+}
+
+resource "google_project_service" "service" {
+  count                      = length(var.project_services)
+  project                    = var.project
+  service                    = element(var.project_services, count.index)
+  disable_on_destroy         = false
+  disable_dependent_services = false
+}
+
+provider "null" {
+  version = "~> 2.1.2"
+}
+
+provider "random" {
+  version = "~> 2.3"
+}
+
+module "network" {
+  source = "./network"
+}
+
+module "ssl" {
+  source = "./ssl"
+  domain = var.domain
+}
+
+module "dns" {
+  source    = "./dns"
+  static_ip = module.network.static_ip
+  domain    = var.domain
+}
+
+module "service-accounts" {
+  source = "./service-accounts"
+}
+
+module "compute" {
+  source                = "./compute"
+  image_name            = var.image_name
+  image_version         = var.image_version
+  registry              = var.registry
+  project               = var.project
+  service_account_email = module.service-accounts.cloud_run_email
+  static_ip_name        = module.network.name
+  ssl_cert_name         = module.ssl.name
+}
