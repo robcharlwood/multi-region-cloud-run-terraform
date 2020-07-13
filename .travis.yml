@@ -20,7 +20,7 @@ jobs:
       script:
         - echo "Mocking terraform service key..."
         - mkdir -p ./.keys
-        - echo "{}" > ./.keys/terraform.json
+        - cat mock_key.json > ./.keys/terraform.json
         - echo "validating terraform"
         - terraform fmt -recursive -check
         - terraform init $tf_init_cli_options
