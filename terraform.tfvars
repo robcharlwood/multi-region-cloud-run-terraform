@@ -1,0 +1,6 @@
+project       = "UPDATE"
+region        = "UPDATE"
+image_name    = "UPDATE"
+image_version = "UPDATE"
+registry      = "UPDATE"
+domain        = "UPDATE"
