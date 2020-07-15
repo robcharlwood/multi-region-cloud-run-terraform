@@ -48,7 +48,7 @@ terraform apply
 ```
 
 ## For those interested
-For people with a curious nature, the main meat of this infrastructure that makes multi region load balancing possible lies [here](https://github.com/robcharlwood/multi-region-cloud-run-terraform/blob/master/compute/main.tf#L45-L154).
+For people with a curious nature, the main meat of the infrastructure that makes multi region load balancing possible lies [here](https://github.com/robcharlwood/multi-region-cloud-run-terraform/blob/master/compute/main.tf#L45-L154).
 
 
 ## Continuous Integration
