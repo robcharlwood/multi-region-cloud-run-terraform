@@ -43,6 +43,9 @@ resource "google_cloud_run_service_iam_policy" "cloud-run-no-auth-policy" {
 
 
 // handle the infrastructure that is not yet fully configurable or compatible with terraform
+// The destroy code here isn't perfect since external references from destroy provisioners are deprecated.
+// However, this code is just temporary until we can provision this with actual terraform resources,
+// so for now this will do. :)
 resource "null_resource" "load-balancer-and-serverless-negs" {
   provisioner "local-exec" {
     environment = {
