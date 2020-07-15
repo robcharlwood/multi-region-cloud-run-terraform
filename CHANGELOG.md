@@ -16,6 +16,12 @@ Types of changes are:
 
 ## Unreleased
 
+## 1.0.3 - 2020-07-15
+
+## Changed
+
+* Added link to medium tutorial from README.md file.
+
 ## 1.0.2 - 2020-07-15
 
 ## Changed

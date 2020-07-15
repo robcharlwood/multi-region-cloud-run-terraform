@@ -1,7 +1,7 @@
 # Multi Region Cloud Run Terraform
 [![Build Status](https://travis-ci.org/robcharlwood/multi-region-cloud-run-terraform.svg?branch=master)](https://travis-ci.org/robcharlwood/multi-region-cloud-run-terraform/)
 
-This repository contains the partner codebase for Rob Charlwood's Medium tutorial - "Multi Region Load Balancing with GO and Google Cloud Run - Part 2".
+This repository contains the partner codebase for Rob Charlwood's Medium tutorial - ["Multi Region Load Balancing with GO and Google Cloud Run - Part 2"](https://medium.com/@bitniftee/multi-region-load-balancing-with-go-and-google-cloud-run-part-2-a30ac47eaaa4).
 
 ## Checkout and setup
 To work with this codebase, you will require the below to be setup and configured on your machine.
