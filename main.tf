@@ -29,22 +29,26 @@ provider "random" {
 }
 
 module "network" {
-  source = "./network"
+  source   = "./network"
+  services = google_project_service.service
 }
 
 module "ssl" {
-  source = "./ssl"
-  domain = var.domain
+  source   = "./ssl"
+  domain   = var.domain
+  services = google_project_service.service
 }
 
 module "dns" {
   source    = "./dns"
   static_ip = module.network.static_ip
   domain    = var.domain
+  services  = google_project_service.service
 }
 
 module "service-accounts" {
-  source = "./service-accounts"
+  source   = "./service-accounts"
+  services = google_project_service.service
 }
 
 module "compute" {
@@ -53,6 +57,7 @@ module "compute" {
   image_version         = var.image_version
   registry              = var.registry
   project               = var.project
+  services              = google_project_service.service
   service_account_email = module.service-accounts.cloud_run_email
   static_ip_name        = module.network.name
   ssl_cert_name         = module.ssl.name

@@ -2,6 +2,7 @@ resource "google_dns_managed_zone" "public-zone" {
   name        = replace(var.domain, ".", "-")
   dns_name    = "${var.domain}."
   description = "Domain for public site"
+  depends_on  = [var.services]
 }
 
 resource "google_dns_record_set" "ns" {
@@ -10,7 +11,8 @@ resource "google_dns_record_set" "ns" {
   type         = "NS"
   ttl          = 60
 
-  rrdatas = google_dns_managed_zone.public-zone.name_servers
+  rrdatas    = google_dns_managed_zone.public-zone.name_servers
+  depends_on = [var.services]
 }
 
 resource "google_dns_record_set" "a" {
@@ -22,6 +24,7 @@ resource "google_dns_record_set" "a" {
   rrdatas = [
     var.static_ip,
   ]
+  depends_on = [var.services]
 }
 
 resource "google_dns_record_set" "a_www" {
@@ -33,4 +36,5 @@ resource "google_dns_record_set" "a_www" {
   rrdatas = [
     var.static_ip,
   ]
+  depends_on = [var.services]
 }

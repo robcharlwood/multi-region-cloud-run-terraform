@@ -9,6 +9,7 @@ resource "random_id" "certificate" {
   keepers = {
     domains = join(",", local.managed_domains)
   }
+  depends_on = [var.services]
 }
 
 resource "google_compute_managed_ssl_certificate" "cert" {
@@ -22,4 +23,5 @@ resource "google_compute_managed_ssl_certificate" "cert" {
   managed {
     domains = local.managed_domains
   }
+  depends_on = [var.services]
 }

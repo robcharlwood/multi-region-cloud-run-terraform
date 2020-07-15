@@ -22,6 +22,8 @@ resource "google_cloud_run_service" "multi-region-cloud-run" {
     percent         = 100
     latest_revision = true
   }
+
+  depends_on = [var.services]
 }
 
 data "google_iam_policy" "cloud-run-no-auth" {
@@ -39,6 +41,7 @@ resource "google_cloud_run_service_iam_policy" "cloud-run-no-auth-policy" {
   project     = element(google_cloud_run_service.multi-region-cloud-run.*.project, count.index)
   service     = element(google_cloud_run_service.multi-region-cloud-run.*.name, count.index)
   policy_data = data.google_iam_policy.cloud-run-no-auth.policy_data
+  depends_on  = [var.services]
 }
 
 
@@ -149,6 +152,7 @@ resource "null_resource" "load-balancer-and-serverless-negs" {
   }
 
   depends_on = [
+    var.services,
     google_cloud_run_service.multi-region-cloud-run.0,
     google_cloud_run_service.multi-region-cloud-run.1,
     google_cloud_run_service.multi-region-cloud-run.2,
