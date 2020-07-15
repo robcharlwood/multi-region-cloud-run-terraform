@@ -38,3 +38,7 @@ variable "ssl_cert_name" {
   description = "Name of the managed SSL certificate resource"
   type        = string
 }
+
+variable "services" {
+  description = "Google APIs and Services"
+}
