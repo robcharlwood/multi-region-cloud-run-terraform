@@ -47,18 +47,6 @@ terraform plan
 terraform apply
 ```
 
-## A word of caution
-The apply might fail on the first run due to a race condition. This terraform enables all the required Google APIs and services for you automatically as part of the build. However, sometimes terraform won't pick up the fact that an API has been enabled in time. In these cases you might see a collection of errors similar to the error below:
-
-```bash
-Error: Error creating ManagedZone: googleapi: Error 403: Cloud DNS API has not been used in project 975128182755 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/dns.googleapis.com/overview?project=975128182755 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry., accessNotConfigured
-
-  on dns/main.tf line 1, in resource "google_dns_managed_zone" "public-zone":
-   1: resource "google_dns_managed_zone" "public-zone" {
-```
-
-When this happens, simply leave it a minute or two and then re-apply your terraform. The second run should apply cleanly.
-
 ## For those interested
 For people with a curious nature, the main meat of the infrastructure that makes multi region load balancing possible lies [here](https://github.com/robcharlwood/multi-region-cloud-run-terraform/blob/master/compute/main.tf#L45-L154).
 

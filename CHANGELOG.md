@@ -16,6 +16,13 @@ Types of changes are:
 
 ## Unreleased
 
+## 1.0.2 - 2020-07-15
+
+## Changed
+
+* Updated the terraform to use ``depends_on`` to fix the race condition issue with Google API and services.
+* Updated the README and CHANGELOG to reflect these changes.
+
 ## 1.0.1 - 2020-07-15
 
 ## Changed
