@@ -16,6 +16,12 @@ Types of changes are:
 
 ## Unreleased
 
+## 1.0.1 - 2020-07-15
+
+## Changed
+
+* Updated the README to inform of a race condition surrounding the enabling of Google APIs and services.
+
 ## 1.0.0 - 2020-07-15
 
 ## Added
