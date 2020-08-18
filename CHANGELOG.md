@@ -16,6 +16,14 @@ Types of changes are:
 
 ## Unreleased
 
+## 1.0.4 - 2020-08-18
+
+## Changed
+
+* Updated terraform code to utilise new google-beta provider support for provisioning Serverless Network Endpoint Groups. This has simplified the code somewhat.
+* We are still reliant on some deprecated functionality in the ``null_resource`` attribute to provision the backend service since currently that does not support serverless NEGs
+* Upgrade to terraform 0.13 is currently blocked due to the previous bullet point.
+
 ## 1.0.3 - 2020-07-15
 
 ## Changed
