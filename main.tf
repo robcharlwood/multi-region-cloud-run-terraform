@@ -1,12 +1,12 @@
 provider "google" {
-  version     = "~> 3.29.0"
+  version     = "~> 3.35.0"
   credentials = file("./.keys/terraform.json")
   project     = var.project
   region      = var.region
 }
 
 provider "google-beta" {
-  version     = "~> 3.29.0"
+  version     = "~> 3.35.0"
   credentials = file("./.keys/terraform.json")
   project     = var.project
   region      = var.region
@@ -59,6 +59,6 @@ module "compute" {
   project               = var.project
   services              = google_project_service.service
   service_account_email = module.service-accounts.cloud_run_email
-  static_ip_name        = module.network.name
-  ssl_cert_name         = module.ssl.name
+  static_ip_id          = module.network.static_ip
+  ssl_cert_id           = module.ssl.id
 }
