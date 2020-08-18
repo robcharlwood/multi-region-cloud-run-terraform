@@ -44,18 +44,34 @@ resource "google_cloud_run_service_iam_policy" "cloud-run-no-auth-policy" {
   depends_on  = [var.services]
 }
 
+resource "google_compute_region_network_endpoint_group" "cloud-run-serverless-neg" {
+  provider              = google-beta
+  count                 = length(google_cloud_run_service.multi-region-cloud-run)
+  name                  = "${element(var.locations, count.index)}-serverless-neg"
+  network_endpoint_type = "SERVERLESS"
+  region                = element(var.locations, count.index)
+  cloud_run {
+    service = element(google_cloud_run_service.multi-region-cloud-run.*.name, count.index)
+  }
+}
 
-// handle the infrastructure that is not yet fully configurable or compatible with terraform
-// The destroy code here isn't perfect since external references from destroy provisioners are deprecated.
-// However, this code is just temporary until we can provision this with actual terraform resources,
-// so for now this will do. :)
-resource "null_resource" "load-balancer-and-serverless-negs" {
+// google_compute_backend_service resource does not currently support serverless negs.
+# resource "google_compute_backend_service" "cloud-run-backend-service" {
+#   provider = google-beta
+#   name     = "${var.image_name}-backend-service"
+#   dynamic "backend" {
+#     for_each = google_compute_region_network_endpoint_group.cloud-run-serverless-neg.*.self_link
+#     content {
+#       group = backend.value
+#     }
+#   }
+# }
+
+resource "null_resource" "cloud-run-backend-service-manual" {
   provisioner "local-exec" {
     environment = {
-      project        = var.project
-      service_name   = var.image_name
-      static_ip_name = var.static_ip_name
-      ssl_cert_name  = var.ssl_cert_name
+      project      = var.project
+      service_name = var.image_name
     }
     command = <<EOT
       gcloud auth activate-service-account terraform@$project.iam.gserviceaccount.com \
@@ -63,22 +79,6 @@ resource "null_resource" "load-balancer-and-serverless-negs" {
           --key-file=./.keys/terraform.json \
           --configuration=$project
       gcloud config configurations activate $project
-      gcloud beta compute network-endpoint-groups create europe-west1-serverless-neg \
-          --region=europe-west1 \
-          --network-endpoint-type=SERVERLESS  \
-          --cloud-run-service=$service_name-europe-west1
-      gcloud beta compute network-endpoint-groups create us-east1-serverless-neg \
-          --region=us-east1 \
-          --network-endpoint-type=SERVERLESS  \
-          --cloud-run-service=$service_name-us-east1
-      gcloud beta compute network-endpoint-groups create us-west1-serverless-neg \
-          --region=us-west1 \
-          --network-endpoint-type=SERVERLESS  \
-          --cloud-run-service=$service_name-us-west1
-      gcloud beta compute network-endpoint-groups create asia-northeast1-serverless-neg \
-          --region=asia-northeast1 \
-          --network-endpoint-type=SERVERLESS  \
-          --cloud-run-service=$service_name-asia-northeast1
       gcloud compute backend-services create $service_name-backend-service --global
       gcloud beta compute backend-services add-backend $service_name-backend-service \
         --global \
@@ -96,15 +96,6 @@ resource "null_resource" "load-balancer-and-serverless-negs" {
         --global \
         --network-endpoint-group=asia-northeast1-serverless-neg \
         --network-endpoint-group-region=asia-northeast1
-      gcloud compute url-maps create $service_name-url-map --default-service $service_name-backend-service
-      gcloud compute target-https-proxies create $service_name-https-proxy \
-          --ssl-certificates=$ssl_cert_name \
-          --url-map=$service_name-url-map
-      gcloud compute forwarding-rules create $service_name-https-content-rule \
-          --address=$static_ip_name \
-          --target-https-proxy=$service_name-https-proxy \
-          --global \
-          --ports=443
       EOT
   }
 
@@ -120,42 +111,37 @@ resource "null_resource" "load-balancer-and-serverless-negs" {
         --key-file=./.keys/terraform.json \
         --configuration=$project
       gcloud config configurations activate $project
-      gcloud compute forwarding-rules delete $service_name-https-content-rule --global --quiet
-      gcloud compute target-https-proxies delete $service_name-https-proxy --quiet
-      gcloud beta compute backend-services remove-backend $service_name-backend-service \
-        --global \
-        --quiet \
-        --network-endpoint-group=europe-west1-serverless-neg \
-        --network-endpoint-group-region=europe-west1
-      gcloud beta compute backend-services remove-backend $service_name-backend-service \
-        --global \
-        --quiet \
-        --network-endpoint-group=us-east1-serverless-neg \
-        --network-endpoint-group-region=us-east1
-      gcloud beta compute backend-services remove-backend $service_name-backend-service \
-        --global \
-        --quiet \
-        --network-endpoint-group=us-west1-serverless-neg \
-        --network-endpoint-group-region=us-west1
-      gcloud beta compute backend-services remove-backend $service_name-backend-service \
-        --global \
-        --quiet \
-        --network-endpoint-group=asia-northeast1-serverless-neg \
-        --network-endpoint-group-region=asia-northeast1
-      gcloud compute url-maps delete $service_name-url-map --quiet
       gcloud compute backend-services delete $service_name-backend-service --global --quiet
-      gcloud beta compute network-endpoint-groups delete europe-west1-serverless-neg --region=europe-west1 --quiet
-      gcloud beta compute network-endpoint-groups delete us-east1-serverless-neg --region=us-east1 --quiet
-      gcloud beta compute network-endpoint-groups delete us-west1-serverless-neg --region=us-west1 --quiet
-      gcloud beta compute network-endpoint-groups delete asia-northeast1-serverless-neg --region=asia-northeast1 --quiet
       EOT
   }
 
   depends_on = [
     var.services,
-    google_cloud_run_service.multi-region-cloud-run.0,
-    google_cloud_run_service.multi-region-cloud-run.1,
-    google_cloud_run_service.multi-region-cloud-run.2,
-    google_cloud_run_service.multi-region-cloud-run.3,
+    google_compute_region_network_endpoint_group.cloud-run-serverless-neg.0,
+    google_compute_region_network_endpoint_group.cloud-run-serverless-neg.1,
+    google_compute_region_network_endpoint_group.cloud-run-serverless-neg.2,
+    google_compute_region_network_endpoint_group.cloud-run-serverless-neg.3,
   ]
+}
+
+resource "google_compute_url_map" "cloud-run-url-map" {
+  name            = "${var.image_name}-url-map"
+  description     = "${var.image_name} URL Map"
+  default_service = "projects/${var.project}/global/backendServices/${var.image_name}-backend-service"
+  # default_service = google_compute_backend_service.cloud-run-backend-service.id
+  # remove me once backend service can be provisioned in terraform
+  depends_on = [null_resource.cloud-run-backend-service-manual]
+}
+
+resource "google_compute_target_https_proxy" "cloud-run-https-proxy" {
+  name             = "${var.image_name}-https-proxy"
+  url_map          = google_compute_url_map.cloud-run-url-map.id
+  ssl_certificates = [var.ssl_cert_id]
+}
+
+resource "google_compute_global_forwarding_rule" "cloud-run-global-forwarding-rule" {
+  name       = "${var.image_name}-https-content-rule"
+  target     = google_compute_target_https_proxy.cloud-run-https-proxy.id
+  port_range = "443"
+  ip_address = var.static_ip_id
 }

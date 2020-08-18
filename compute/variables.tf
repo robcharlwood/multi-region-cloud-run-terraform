@@ -29,13 +29,13 @@ variable "service_account_email" {
   type        = string
 }
 
-variable "static_ip_name" {
-  description = "Name of the static IP resource"
+variable "static_ip_id" {
+  description = "ID of the static IP resource"
   type        = string
 }
 
-variable "ssl_cert_name" {
-  description = "Name of the managed SSL certificate resource"
+variable "ssl_cert_id" {
+  description = "ID of the managed SSL certificate resource"
   type        = string
 }
 
