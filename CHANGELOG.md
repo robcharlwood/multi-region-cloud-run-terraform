@@ -16,6 +16,11 @@ Types of changes are:
 
 ## Unreleased
 
+## 1.0.5 - 2020-09-01
+
+## Changed
+* Removed the use of local-exec resource for provisioning the backend service. As of 2020-08-31 this is now possible via the google-beta terraform provider.
+
 ## 1.0.4 - 2020-08-18
 
 ## Changed
