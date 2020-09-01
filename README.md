@@ -7,7 +7,6 @@ This repository contains the partner codebase for Rob Charlwood's Medium tutoria
 To work with this codebase, you will require the below to be setup and configured on your machine.
 
 * ``terraform`` at version ``0.12.28``
-* Google Cloud SDK (``gcloud``) at version ``300.0.0`` or greater with the ``beta`` component installed.
 
 To set this codebase up on your machine, you can run the following commands:
 
@@ -30,13 +29,6 @@ registry      = "eu.gcr.io"
 domain        = "example.com"
 ```
 
-Finally, you'll need to create a new empty configuration in the ``gcloud`` SDK for terraform work with.
-This configuration should be named the same as your Google cloud project since terraform will automatically switch configuration profiles for you in order to run in configuration that cannot yet be provisioned with standard terraform resources.
-
-```bash
-gcloud config configurations create my-google-project-name
-```
-
 ## Running the terraform
 
 Once all setup above is completed, you can run in the terraform with the below commands to provision all the required infrastructure.
@@ -48,7 +40,7 @@ terraform apply
 ```
 
 ## For those interested
-For people with a curious nature, the main meat of the infrastructure that makes multi region load balancing possible lies [here](https://github.com/robcharlwood/multi-region-cloud-run-terraform/blob/master/compute/main.tf#L45-L154).
+For people with a curious nature, the main meat of the infrastructure that makes multi region load balancing possible lies [here](https://github.com/robcharlwood/multi-region-cloud-run-terraform/blob/master/compute/main.tf#L47-L86).
 
 
 ## Continuous Integration

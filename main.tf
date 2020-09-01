@@ -1,12 +1,12 @@
 provider "google" {
-  version     = "~> 3.35.0"
+  version     = "~> 3.37.0"
   credentials = file("./.keys/terraform.json")
   project     = var.project
   region      = var.region
 }
 
 provider "google-beta" {
-  version     = "~> 3.35.0"
+  version     = "~> 3.37.0"
   credentials = file("./.keys/terraform.json")
   project     = var.project
   region      = var.region

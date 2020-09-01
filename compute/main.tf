@@ -55,82 +55,21 @@ resource "google_compute_region_network_endpoint_group" "cloud-run-serverless-ne
   }
 }
 
-// google_compute_backend_service resource does not currently support serverless negs.
-# resource "google_compute_backend_service" "cloud-run-backend-service" {
-#   provider = google-beta
-#   name     = "${var.image_name}-backend-service"
-#   dynamic "backend" {
-#     for_each = google_compute_region_network_endpoint_group.cloud-run-serverless-neg.*.self_link
-#     content {
-#       group = backend.value
-#     }
-#   }
-# }
-
-resource "null_resource" "cloud-run-backend-service-manual" {
-  provisioner "local-exec" {
-    environment = {
-      project      = var.project
-      service_name = var.image_name
+resource "google_compute_backend_service" "cloud-run-backend-service" {
+  provider = google-beta
+  name     = "${var.image_name}-backend-service"
+  dynamic "backend" {
+    for_each = google_compute_region_network_endpoint_group.cloud-run-serverless-neg.*.self_link
+    content {
+      group = backend.value
     }
-    command = <<EOT
-      gcloud auth activate-service-account terraform@$project.iam.gserviceaccount.com \
-          --project=$project \
-          --key-file=./.keys/terraform.json \
-          --configuration=$project
-      gcloud config configurations activate $project
-      gcloud compute backend-services create $service_name-backend-service --global
-      gcloud beta compute backend-services add-backend $service_name-backend-service \
-        --global \
-        --network-endpoint-group=europe-west1-serverless-neg \
-        --network-endpoint-group-region=europe-west1
-      gcloud beta compute backend-services add-backend $service_name-backend-service \
-        --global \
-        --network-endpoint-group=us-east1-serverless-neg \
-        --network-endpoint-group-region=us-east1
-      gcloud beta compute backend-services add-backend $service_name-backend-service \
-        --global \
-        --network-endpoint-group=us-west1-serverless-neg \
-        --network-endpoint-group-region=us-west1
-      gcloud beta compute backend-services add-backend $service_name-backend-service \
-        --global \
-        --network-endpoint-group=asia-northeast1-serverless-neg \
-        --network-endpoint-group-region=asia-northeast1
-      EOT
   }
-
-  provisioner "local-exec" {
-    when = destroy
-    environment = {
-      project      = var.project
-      service_name = var.image_name
-    }
-    command = <<EOT
-      gcloud auth activate-service-account terraform@$project.iam.gserviceaccount.com \
-        --project=$project \
-        --key-file=./.keys/terraform.json \
-        --configuration=$project
-      gcloud config configurations activate $project
-      gcloud compute backend-services delete $service_name-backend-service --global --quiet
-      EOT
-  }
-
-  depends_on = [
-    var.services,
-    google_compute_region_network_endpoint_group.cloud-run-serverless-neg.0,
-    google_compute_region_network_endpoint_group.cloud-run-serverless-neg.1,
-    google_compute_region_network_endpoint_group.cloud-run-serverless-neg.2,
-    google_compute_region_network_endpoint_group.cloud-run-serverless-neg.3,
-  ]
 }
 
 resource "google_compute_url_map" "cloud-run-url-map" {
   name            = "${var.image_name}-url-map"
   description     = "${var.image_name} URL Map"
-  default_service = "projects/${var.project}/global/backendServices/${var.image_name}-backend-service"
-  # default_service = google_compute_backend_service.cloud-run-backend-service.id
-  # remove me once backend service can be provisioned in terraform
-  depends_on = [null_resource.cloud-run-backend-service-manual]
+  default_service = google_compute_backend_service.cloud-run-backend-service.id
 }
 
 resource "google_compute_target_https_proxy" "cloud-run-https-proxy" {
