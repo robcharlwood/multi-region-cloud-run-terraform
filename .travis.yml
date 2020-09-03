@@ -6,7 +6,7 @@ branches:
     - master
 
 env:
-  - tf_version=0.12.28 tf_init_cli_options="-input=false" tf_validation_cli_options=""
+  - tf_version=0.13.2 tf_init_cli_options="-input=false" tf_validation_cli_options=""
 
 before_install:
   - wget https://releases.hashicorp.com/terraform/"$tf_version"/terraform_"$tf_version"_linux_amd64.zip

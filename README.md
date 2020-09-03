@@ -6,7 +6,7 @@ This repository contains the partner codebase for Rob Charlwood's Medium tutoria
 ## Checkout and setup
 To work with this codebase, you will require the below to be setup and configured on your machine.
 
-* ``terraform`` at version ``0.12.28``
+* ``terraform`` at version ``0.13.2``
 
 To set this codebase up on your machine, you can run the following commands:
 

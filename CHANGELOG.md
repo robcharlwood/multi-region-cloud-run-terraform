@@ -16,6 +16,11 @@ Types of changes are:
 
 ## Unreleased
 
+## 1.1.0 - 2020-09-03
+
+## Changed
+* Updated codebase for terraform 0.13 compatibility.
+
 ## 1.0.5 - 2020-09-01
 
 ## Changed
